@@ -77,6 +77,7 @@ def draw(window, background, bg_image, player):
 
     pygame.display.update()
 
+
 def handle_move(player):
         keys = pygame.key.get_pressed()
         player.x_vel = 0
@@ -101,9 +102,9 @@ def main(window):
                 run = False
                 break 
     
-    player.loop(FPS)
-    handle_move(player)
-    draw(window, background, bg_image, player)
+        player.loop(FPS)
+        handle_move(player)
+        draw(window, background, bg_image, player)
 
     pygame.quit()
     quit()
