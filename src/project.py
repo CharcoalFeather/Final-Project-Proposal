@@ -15,10 +15,11 @@ FPS = 60
 PLAYER_VEL = 5
 window = pygame.display.set_mode((WIDTH, HEIGHT))
 
-#Player Class
+
 class Player(pygame.sprite.Sprite):
     #using sprite allows us to do pixel perfect collision
     COLOR = (255, 0, 0) #class variable so its accesible 
+    GRAVITY = 1 
     def __init__(self, x, y, width, height):
         self.rect = pygame.Rect(x, y, width, height) # rect is a tuple storing values
         #We will move our player using a velocity in a direction
@@ -27,6 +28,7 @@ class Player(pygame.sprite.Sprite):
         self.mask = None
         self.direction = "left"
         self.animation_count = 0
+        self.fall_count = 0 
 
     def move(self, dx, dy):
         self.rect.x += dx
@@ -47,11 +49,16 @@ class Player(pygame.sprite.Sprite):
     def loop(self, fps):
         #we call the loop once every frame, and it will move the character.
         self.move(self.x_vel, self.y_vel)
+        self.y_vel += min(1, (self.fall_count / fps) * self.GRAVITY)
+        self.move(self.x_vel, self.y_vel)
+
+        self.fall_count += 1 
+
 
     def draw(self, win):
         pygame.draw.rect(win, self.COLOR, self.rect)
 
-#Background 
+
 def get_background(name):
     #image code joins asset and background paths together. and loads the file name.
     image = pygame.image.load(join("assets", "Background", name))
@@ -66,6 +73,7 @@ def get_background(name):
             pos = (i * width, j * height)
             tiles.append(pos)
     return tiles, image
+
 
 def draw(window, background, bg_image, player):
 # We are looping through tiles and they will return determined by previously mentioned code.
@@ -85,6 +93,7 @@ def handle_move(player):
             player.move_left(PLAYER_VEL)
         if keys[pygame.K_RIGHT]:
             player.move_right(PLAYER_VEL)
+
 
 def main(window):
     clock = pygame.time.Clock()
