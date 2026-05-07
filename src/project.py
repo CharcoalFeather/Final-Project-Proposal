@@ -87,11 +87,21 @@ class Player(pygame.sprite.Sprite):
     
     def loop(self, fps):
         #we call the loop once every frame, and it will move the character.
-        #self.y_vel += min(1, (self.fall_count / fps) * self.GRAVITY)
+        self.y_vel += min(1, (self.fall_count / fps) * self.GRAVITY)
         self.move(self.x_vel, self.y_vel)
 
         self.fall_count += 1 
         self.update_sprite()
+
+
+    def landed(self):
+        self.fall_count = 0
+        self.y_vel = 0
+        self.jump_count = 0 
+
+    def hit_head(self):
+        self.count = 0 
+        self.y_vel *= -1
 
     def update_sprite(self):
         sprite_sheet = "idle"
@@ -164,19 +174,31 @@ def draw(window, background, bg_image, player, objects):
 
     pygame.display.update()
 
-def handle_vertical_collicsion(player, objects, dy):
+def handle_vertical_collision(player, objects, dy):
     collided_objects = []
-    for obj in objects: 
-        if pygame.sprite.collide_mask(player, object):    
+    for obj in objects:
+        if pygame.sprite.collide_mask(player, obj):
+            if dy > 0:
+                player.rect.bottom = obj.rect.top
+                player.landed()
+            elif dy < 0:
+                player.rect.top = obj.rect.bottom
+                player.hit_head()
 
+        collided_objects.append(obj)
 
-def handle_move(player):
-        keys = pygame.key.get_pressed()
-        player.x_vel = 0
-        if keys[pygame.K_LEFT]:
-            player.move_left(PLAYER_VEL)
-        if keys[pygame.K_RIGHT]:
-            player.move_right(PLAYER_VEL)
+    return collided_objects
+
+def handle_move(player, objects):
+    keys = pygame.key.get_pressed()
+
+    player.x_vel = 0
+    if keys[pygame.K_LEFT]:
+        player.move_left(PLAYER_VEL)
+    if keys[pygame.K_RIGHT]:
+        player.move_right(PLAYER_VEL)
+
+    handle_vertical_collision(player, objects, player.y_vel)
 
 
 def main(window):
@@ -193,23 +215,17 @@ def main(window):
 
     while run:
         clock.tick(FPS)
-    #This while loop ensure our game runs at 60 fps.
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
                 break 
     
         player.loop(FPS)
-        handle_move(player)
+        handle_move(player, floor)
         draw(window, background, bg_image, player, floor)
 
     pygame.quit()
     quit()
-
-
-    pass
-    #Inside of main will be our event loop. 
-
 
 if __name__ =="__main__":
     main(window)
