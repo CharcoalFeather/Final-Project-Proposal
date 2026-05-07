@@ -8,6 +8,13 @@ pygame.init()
 
 pygame.display.set_caption("A Unicorn's Wander")
 
+#Major Cleanup is needed. To Do: 
+#Turn the background into a picture of the mountains.
+#Implement a ground of blocks
+#Ensure gravity is sound
+#Ensure Sprite is sound. 
+#Apply Music
+
 BG_COLOR = (255, 255, 255)
 WIDTH, HEIGHT = 600, 600
 FPS = 60 
@@ -138,12 +145,12 @@ class Block(Object):
 
 
 def get_background(name):
-    image = pygame.image.load(join("assets", "Background", name))
+    path = join("assets", "Background", name)
+    image = pygame.image.load(path).convert()
+    return pygame.transform.scale(image, (WIDTH, HEIGHT))
 
-
-def draw(window, background, bg_image, player, objects, offset_x):
-    for obj in background:
-        window.blit(bg_image)
+def draw(window, bg_image, player, objects, offset_x):
+    window.blit(bg_image, (0, 0))
 
     for obj in objects:
         obj.draw(window, offset_x)
@@ -198,9 +205,9 @@ def handle_move(player, objects):
 
 
 def main(window):
+    window.fill((0, 0, 0))
+    bg_image = get_background("Mountains.png")
     clock = pygame.time.Clock()
-    bg_image = "Mountains.png"
-
     block_size = 96
 
     player = Player(100, 100, 50, 50)
@@ -219,15 +226,9 @@ def main(window):
                 run = False
                 break
 
-        
-
         player.loop(FPS)
         handle_move(player, objects)
         draw(window, bg_image, player, objects, offset_x)
-
-        if ((player.rect.right - offset_x >= WIDTH - scroll_area_width) and player.x_vel > 0) or (
-                (player.rect.left - offset_x <= scroll_area_width) and player.x_vel < 0):
-            offset_x += player.x_vel
 
     pygame.quit()
     quit()
