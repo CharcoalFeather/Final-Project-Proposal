@@ -4,6 +4,7 @@ import math
 import pygame
 from os import listdir
 from os.path import isfile, join
+from pygame import mixer
 pygame.init()
 
 pygame.display.set_caption("A Unicorn's Wander")
@@ -187,6 +188,11 @@ def collide(player, objects, dx):
     player.update()
     return collided_object
 
+def sound(sound):
+    # Sound
+    path = join("assets", "background.mp3")
+    mixer.music.load("background.mp3")
+    mixer.music.play(-1)
 
 def handle_move(player, objects):
     keys = pygame.key.get_pressed()
