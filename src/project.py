@@ -16,7 +16,6 @@ Background = pygame.image.load('assets/Background/Mountains.png')
 grass_img = pygame.image.load('assets/Terrain/grass.png')
 
 
-
 class World():
     def __init__(self, data):
         self.tile_list = []
@@ -49,28 +48,76 @@ class World():
         for tile in self.tile_list:
             screen.blit(tile[0], tile[1])
 
+class Player(): 
+    def __init__(self, x,y):
+        img = pygame.image.load('assets/MainCharacters/Unicorn/Unicorn1.png')
+        self.image = pygame.transform.scale(img, (60, 60))
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.vel_y = 0
+        self.jumped = False
+    
+    def update(self):
+        dx = 0 
+        dy = 0
+
+        #Keypresses
+        key = pygame.key.get_pressed()
+        if key[pygame.K_SPACE] and self.jumped == False:
+            self.vel_y = -15
+            self.jumped = True
+        if key[pygame.K_SPACE] == False:
+            self.jumped = False
+        if key[pygame.K_LEFT]: 
+            dx -= 5
+        if key[pygame.K_RIGHT]: 
+            dx += 5
+
+        #add gravity
+        self.vel_y += 1
+        if self.vel_y > 10:
+            self.vel_y = 10
+        dy += self.vel_y
+        
+
+        #Check for collision
+
+        #update player coordinates
+        self.rect.x += dx
+        self.rect.y += dy
+
+        if self.rect.bottom > HEIGHT:
+            self.rect.bottom = HEIGHT
+
+        #Draws our Unicorn
+        screen.blit(self.image, self.rect)
+
+#Determines block placements
 world_data = [
-[0, 0, 0, 0, 0],
-[0, 0, 0, 2, 2],
-[0, 2, 0, 0, 0],
-[0, 0, 0, 0, 0],
-[1, 2, 2, 0, 0],
-[0, 0, 0, 0, 0],
-[0, 0, 0, 1, 1],
-[0, 0, 0, 0, 0],
-[0, 0, 0, 0, 0],
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+[0, 0, 0, 2, 2, 0, 0, 0, 0, 0],
+[0, 2, 0, 0, 0, 0, 0, 0, 0, 0],
+[0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
+[1, 2, 2, 0, 0, 0, 0, 0, 0, 0],
+[0, 0, 0, 0, 0, 0, 0, 2, 2, 2],
+[0, 0, 0, 2, 2, 0, 0, 0, 0, 0],
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 [1, 2, 2, 2, 1, 1, 2, 2, 2, 1]
 ]
 
 world = World(world_data)
+player = Player(100, HEIGHT - 130)
 
-
-
+#Game loop
 run = True
 while run:
 
+    #Displays our images
     screen.blit(Background, (0,0))
     world.draw()
+    player.update()
  
 
     for event in pygame.event.get():
