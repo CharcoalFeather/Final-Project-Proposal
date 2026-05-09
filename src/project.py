@@ -3,12 +3,15 @@ from pygame.locals import *
 
 pygame.init()
 
+clock = pygame.time.Clock()
+fps = 60
+
 WIDTH = 600
 HEIGHT = 600
-
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("A Unicorn's Wander")
 
+#Game Variables
 tile_size = 60
 
 #Load images
@@ -50,17 +53,28 @@ class World():
 
 class Player(): 
     def __init__(self, x,y):
-        img = pygame.image.load('assets/MainCharacters/Unicorn/Unicorn1.png')
-        self.image = pygame.transform.scale(img, (60, 60))
+        self.images_right = []
+        self.images_left = []
+        self.index = 0 
+        self.counter = 0
+        for num in range(1, 5):
+            img_right = pygame.image.load(f'assets/MainCharacters/Unicorn/Unicorn{num}.png')
+            img_right = pygame.transform.scale(img_right, (60, 50))
+            img_left = pygame.transform.flip(img_right, True, False)
+            self.images_right.append(img_right)
+            self.images_left.append(img_left)
+        self.image = self.images_right[self.index]
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
         self.vel_y = 0
         self.jumped = False
+        self.direction = 0
     
     def update(self):
         dx = 0 
         dy = 0
+        walk_cooldown = 5
 
         #Keypresses
         key = pygame.key.get_pressed()
@@ -71,8 +85,32 @@ class Player():
             self.jumped = False
         if key[pygame.K_LEFT]: 
             dx -= 5
+            self. counter += 1
+            self.direction = -1
         if key[pygame.K_RIGHT]: 
             dx += 5
+            self. counter += 1
+            self.direction = 1
+        if key[pygame.K_LEFT] == False and key[pygame.K_RIGHT] == False:
+            self.counter = 0
+            self.index = 0
+        if self.direction == 1:
+            self.image = self.images_right[self.index]
+        if self.direction == -1:
+            self.image = self.images_left[self.index]
+
+
+        #animatiopn
+        if self.counter > walk_cooldown:
+            self.counter = 0
+            self.index += 1
+        if self.index >= len(self.images_right):
+            self.index = 0
+        if self.direction == 1:
+            self.image = self.images_right[self.index]
+        if self.direction == -1:
+            self.image = self.images_left[self.index]
+        
 
         #add gravity
         self.vel_y += 1
@@ -113,6 +151,9 @@ player = Player(100, HEIGHT - 130)
 #Game loop
 run = True
 while run:
+
+
+    clock.tick(fps)
 
     #Displays our images
     screen.blit(Background, (0,0))
