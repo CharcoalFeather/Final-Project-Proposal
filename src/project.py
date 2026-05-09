@@ -67,6 +67,8 @@ class Player():
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+        self.width = self.image.get_width()
+        self.height = self.image.get_height()
         self.vel_y = 0
         self.jumped = False
         self.direction = 0
@@ -100,7 +102,7 @@ class Player():
             self.image = self.images_left[self.index]
 
 
-        #animatiopn
+        #animation
         if self.counter > walk_cooldown:
             self.counter = 0
             self.index += 1
@@ -120,16 +122,32 @@ class Player():
         
 
         #Check for collision
+        for tile in world.tile_list:
+            #check for collision in y direction 
+            if tile[1].colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
+                if dy > 0:
+                    dy = tile[1].top - self.rect.bottom
+                    self.vel_y = 0
+                elif dy < 0:
+                    dy = tile[1].bottom - self.rect.top
+                    self.vel_y = 0
 
         #update player coordinates
-        self.rect.x += dx
         self.rect.y += dy
+
+        #check for collision in x direction
+        for tile in world.tile_list:
+            if tile[1].colliderect(self.rect.x + dx, self.rect.y, self.width, self.height):
+                dx = 0
+
+        self.rect.x += dx
 
         if self.rect.bottom > HEIGHT:
             self.rect.bottom = HEIGHT
-
+            dy = 0
         #Draws our Unicorn
         screen.blit(self.image, self.rect)
+        pygame.draw.rect(screen, (255, 255, 255), self.rect, 2)
 
 #Determines block placements
 world_data = [
@@ -159,6 +177,7 @@ while run:
     screen.blit(Background, (0,0))
     world.draw()
     player.update()
+    
  
 
     for event in pygame.event.get():
