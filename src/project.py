@@ -44,6 +44,9 @@ class World():
                     img_rect.y = row_count * tile_size
                     tile = (img, img_rect)
                     self.tile_list.append(tile)
+                if tile == 3:
+                    fire = Enemy(col_count * tile_size, row_count * tile_size + 5)
+                    fire_group.add(fire)
                 col_count += 1
             row_count += 1
 
@@ -154,25 +157,40 @@ class Player():
         #draw player onto screen
         screen.blit(self.image, self.rect)
 
+class Enemy(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load('assets/Enemies/Fire.png')
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.move_direction = 1 
+    def update(self):
+        self.rect.x += self.move_direction
+    
+
+
+
 #Determines block placements
 world_data = [
 [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 2, 2, 2, 1],
-[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 [1, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 [1, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 1],
-[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 0, 1],
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 [1, 0, 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0, 1],
-[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 1],
 [1, 0, 0, 0, 2, 2, 0, 0, 0, 0, 2, 2, 2, 0, 1],
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
 [1, 2, 2, 2, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 2]
 ]
 
+fire_group = pygame.sprite.Group()
 world = World(world_data)
 player = Player(100, HEIGHT - 130)
 
@@ -186,6 +204,8 @@ while run:
     #Displays our images
     screen.blit(Background, (0,0))
     world.draw()
+    fire_group.update()
+    fire_group.draw(screen)
     player.update()
     
  
