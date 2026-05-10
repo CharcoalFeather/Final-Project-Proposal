@@ -1,7 +1,10 @@
 import pygame
 from pygame.locals import * 
+from pygame import mixer
 
+pygame.mixer.pre_init(44100, -16, 2, 512)
 pygame.init()
+mixer.init()
 
 clock = pygame.time.Clock()
 fps = 60
@@ -19,7 +22,11 @@ game_over = 0
 Background = pygame.image.load('assets/Background/Mountains.png')
 grass_img = pygame.image.load('assets/Terrain/grass.png')
 restart_img = pygame.image.load('assets/Buttons/restart.png')
+win_img = pygame.image.load('assets/other/win.png')
 
+#sounds
+pygame.mixer.music.load('assets/Music/background.wav')
+pygame.mixer.music.play(-1, 0.0, 5000)
 
 class World():
     def __init__(self, data):
@@ -161,6 +168,8 @@ class Player():
             #collison with enemies
             if pygame.sprite.spritecollide(self, spike_group, False):
                 game_over = -1
+            if pygame.sprite.spritecollide(self, exit_group, False):
+                game_over = 1
 
 
             #update player coordinates
@@ -233,9 +242,9 @@ world_data = [
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 1],
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 [1, 0, 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0, 1],
-[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-[1, 0, 0, 0, 2, 2, 0, 0, 0, 0, 2, 2, 2, 2, 1],
-[1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
+[1, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 1],
+[1, 0, 0, 0, 2, 2, 0, 0, 0, 1, 1, 1, 1, 1, 1],
 [1, 2, 2, 2, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 2]
 ]
 
@@ -267,13 +276,25 @@ while run:
 
     game_over = player.update(game_over)
 
-
     if game_over == -1: 
         if restart_button.draw():
             game_over = 0
             spike_group = pygame.sprite.Group()
             world = World(world_data)
             player.reset(100, HEIGHT - 130)
+
+    if game_over == 1: 
+        if restart_button.draw():
+            game_over = 0
+            spike_group = pygame.sprite.Group()
+            world = World(world_data)
+            player.reset(100, HEIGHT - 130)
+        screen.blit(win_img, (WIDTH//2 - 50, HEIGHT // 2))
+
+
+
+
+
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
